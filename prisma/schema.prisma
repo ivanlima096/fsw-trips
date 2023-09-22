@@ -23,6 +23,8 @@ model Trip {
   highlights   String[]
   maxGuests    Int
   reservations TripReservation[]
+  contryCode   String
+  recommended  Boolean           @default(false)
 }
 
 model TripReservation {
