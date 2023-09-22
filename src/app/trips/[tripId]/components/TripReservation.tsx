@@ -21,7 +21,10 @@ export default function TripReservation({ trip }: TripReservationProps) {
         <p className="font-medium text-sm text-primaryDarker">Total( X Noites)</p>
         <p className="font-medium text-sm text-primaryDarker">R$ 2500,00</p>
       </div>
-      <Button className="mt-3"> Reservar Agora</Button>
+      <div className="pb-10 border-b border-grayLighter w-full">
+
+        <Button className="mt-3 w-full"> Reservar Agora</Button>
+      </div>
     </div>
   )
 }
