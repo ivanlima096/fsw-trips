@@ -6,7 +6,9 @@ import { Trip } from "@prisma/client";
 import { useForm, Controller } from "react-hook-form";
 
 interface TripReservationProps {
-  trip: Trip
+  tripStartDate: Date
+  tripEndDate: Date
+  maxGuests: Number
 }
 
 interface TripReservationForm {
@@ -15,12 +17,15 @@ interface TripReservationForm {
   endDate: Date | null
 }
 
-export default function TripReservation({ trip }: TripReservationProps) {
-  const { register, handleSubmit, formState: { errors }, control } = useForm<TripReservationForm>()
+export default function TripReservation({ tripStartDate, tripEndDate, maxGuests }: TripReservationProps) {
+  const { register, handleSubmit, formState: { errors }, control, watch } = useForm<TripReservationForm>()
 
   const onSubmit = (data: any) => {
 
   }
+
+  const startDate = watch("startDate")
+
   return (
     <div className="flex flex-col px-5">
       <div className="flex gap-4">
@@ -41,6 +46,7 @@ export default function TripReservation({ trip }: TripReservationProps) {
               onChange={field.onChange}
               selected={field.value}
               className="w-full"
+              minDate={tripStartDate}
             />
           )}
         />
@@ -61,6 +67,8 @@ export default function TripReservation({ trip }: TripReservationProps) {
               onChange={field.onChange}
               selected={field.value}
               className="w-full"
+              maxDate={tripEndDate}
+              minDate={startDate ?? tripStartDate}
             />
           )}
         />
@@ -75,7 +83,7 @@ export default function TripReservation({ trip }: TripReservationProps) {
       })}
         error={!!errors?.guests}
         errorMessage={errors?.guests?.message}
-        placeholder={`Número de hóspedes (máx. ${trip.maxGuests})`} className="mt-4" />
+        placeholder={`Número de hóspedes (máx. ${maxGuests})`} className="mt-4" />
       <div className="flex justify-between mt-3">
         <p className="font-medium text-sm text-primaryDarker">Total( X Noites)</p>
         <p className="font-medium text-sm text-primaryDarker">R$ 2500,00</p>
