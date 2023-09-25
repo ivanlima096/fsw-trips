@@ -1,16 +1,17 @@
 "use client"
+
 import Button from "@/components/Button";
 import DatePicker from "@/components/DatePicker";
 import Input from "@/components/Input";
-import { Trip } from "@prisma/client";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, set } from "date-fns";
 import { useForm, Controller } from "react-hook-form";
 
 interface TripReservationProps {
+  tripId: string
   tripStartDate: Date
   tripEndDate: Date
   maxGuests: Number
-  pricePerDay: Number
+  pricePerDay: any
 }
 
 interface TripReservationForm {
@@ -19,12 +20,46 @@ interface TripReservationForm {
   endDate: Date | null
 }
 
-export default function TripReservation({ tripStartDate, tripEndDate, maxGuests, pricePerDay }: TripReservationProps) {
-  const { register, handleSubmit, formState: { errors }, control, watch } = useForm<TripReservationForm>()
+export default function TripReservation({ tripId, tripStartDate, tripEndDate, maxGuests, pricePerDay }: TripReservationProps) {
+  const { register, handleSubmit, formState: { errors }, control, watch, setError } = useForm<TripReservationForm>()
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: TripReservationForm) => {
+    const response = await fetch("http://localhost:3000/api/trips/check", {
+      method: "POST",
+      body: Buffer.from(JSON.stringify({
+        startDate: data.startDate,
+        endDate: data.endDate,
+        tripId,
+      }))
+    })
+    const res = await response.json()
 
+    if (res?.error?.code === "TRIP_ALREADY_RESERVED") {
+      setError("startDate", {
+        type: "manual",
+        message: "Esta data já está reservada."
+      })
+      setError("endDate", {
+        type: "manual",
+        message: "Esta data já está reservada."
+      })
+    }
+
+    if (res?.error?.code === "INVALID_START_DATE") {
+      setError("startDate", {
+        type: "manual",
+        message: "Data inválida."
+      })
+    }
+    if (res?.error?.code === "INVALID_END_DATE") {
+      setError("endDate", {
+        type: "manual",
+        message: "Data inválida."
+      })
+    }
   }
+
+
 
   const startDate = watch("startDate")
   const endDate = watch("endDate")
@@ -89,9 +124,9 @@ export default function TripReservation({ tripStartDate, tripEndDate, maxGuests,
         placeholder={`Número de hóspedes (máx. ${maxGuests})`} className="mt-4" />
       <div className="flex justify-between mt-3">
         <p className="font-medium text-sm text-primaryDarker">Total( X Noites)</p>
-        <p className="font-medium text-sm text-primaryDarker">{
-          (startDate && endDate) ? `R$${differenceInDays(endDate, startDate) * pricePerDay}` : "R$0"
-        }</p>
+        <p className="font-medium text-sm text-primaryDarker">
+          {startDate && endDate ? `R$${differenceInDays(endDate, startDate) * pricePerDay}` ?? 1 : "R$0"}
+        </p>
       </div>
       <div className="pb-10 border-b border-grayLighter w-full">
 
