@@ -3,6 +3,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 
 const poppins = Poppins({
   subsets: ['latin'], weight: [
@@ -32,6 +33,7 @@ export default function RootLayout({
           <Header />
 
           {children}
+          <Footer />
         </NextAuthProvider>
       </body>
     </html>
