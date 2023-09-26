@@ -31,9 +31,14 @@ export default function TripConfirmation({ params }: { params: { tripId: string 
           endDate: searchParams.get("endDate"),
         })
       })
-      const { trip, totalPrice } = await response.json()
-      setTrip(trip)
-      setTotalPrice(totalPrice)
+      const res = await response.json()
+
+      if (res?.error === "TRIP_ALREADY_RESERVED") {
+        return router.push('/')
+      }
+
+      setTrip(res.trip)
+      setTotalPrice(res.totalPrice)
     }
     if (status === "unauthenticated") {
       router.push("/")
