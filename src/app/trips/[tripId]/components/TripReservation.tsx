@@ -4,24 +4,27 @@ import Button from "@/components/Button";
 import DatePicker from "@/components/DatePicker";
 import Input from "@/components/Input";
 import { differenceInDays, set } from "date-fns";
+import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 
 interface TripReservationProps {
   tripId: string
   tripStartDate: Date
   tripEndDate: Date
-  maxGuests: Number
+  maxGuests: any
   pricePerDay: any
 }
 
 interface TripReservationForm {
-  guests: number,
+  guests: Number,
   startDate: Date | null
   endDate: Date | null
 }
 
 export default function TripReservation({ tripId, tripStartDate, tripEndDate, maxGuests, pricePerDay }: TripReservationProps) {
   const { register, handleSubmit, formState: { errors }, control, watch, setError } = useForm<TripReservationForm>()
+
+  const router = useRouter()
 
   const onSubmit = async (data: TripReservationForm) => {
     const response = await fetch("http://localhost:3000/api/trips/check", {
@@ -39,24 +42,25 @@ export default function TripReservation({ tripId, tripStartDate, tripEndDate, ma
         type: "manual",
         message: "Esta data já está reservada."
       })
-      setError("endDate", {
+      return setError("endDate", {
         type: "manual",
         message: "Esta data já está reservada."
       })
     }
 
     if (res?.error?.code === "INVALID_START_DATE") {
-      setError("startDate", {
+      return setError("startDate", {
         type: "manual",
         message: "Data inválida."
       })
     }
     if (res?.error?.code === "INVALID_END_DATE") {
-      setError("endDate", {
+      return setError("endDate", {
         type: "manual",
         message: "Data inválida."
       })
     }
+    router.push(`/trips/${tripId}/confirmation?startDate=${data.startDate?.toISOString()}&endDate=${data.endDate?.toISOString()}&guests=${data.guests}`)
   }
 
 
@@ -118,12 +122,20 @@ export default function TripReservation({ tripId, tripStartDate, tripEndDate, ma
           value: true,
           message: "Número de hóspedes é obrigatório.",
         },
+        max: {
+          value: maxGuests,
+          message: `Número de hóspedes não pode ser maior que ${maxGuests}`
+        }
       })}
         error={!!errors?.guests}
         errorMessage={errors?.guests?.message}
-        placeholder={`Número de hóspedes (máx. ${maxGuests})`} className="mt-4" />
+        placeholder={`Número de hóspedes (máx. ${maxGuests})`} className="mt-4"
+        type="number"
+      />
       <div className="flex justify-between mt-3">
-        <p className="font-medium text-sm text-primaryDarker">Total( X Noites)</p>
+        <p className="font-medium text-sm text-primaryDarker">Total
+          {startDate && endDate ? `(${differenceInDays(endDate, startDate)} noites)` : ""}
+        </p>
         <p className="font-medium text-sm text-primaryDarker">
           {startDate && endDate ? `R$${differenceInDays(endDate, startDate) * pricePerDay}` ?? 1 : "R$0"}
         </p>
