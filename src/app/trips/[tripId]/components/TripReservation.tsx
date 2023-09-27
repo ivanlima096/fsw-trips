@@ -131,6 +131,7 @@ export default function TripReservation({ tripId, tripStartDate, tripEndDate, ma
         errorMessage={errors?.guests?.message}
         placeholder={`Número de hóspedes (máx. ${maxGuests})`} className="mt-4"
         type="number"
+        min="1"
       />
       <div className="flex justify-between mt-3">
         <p className="font-medium text-sm text-primaryDarker">Total
